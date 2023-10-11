@@ -9,22 +9,26 @@
 #include <godot_cpp/classes/curve.hpp>
 #include <godot_cpp/classes/ref.hpp>
 #include <godot_cpp/core/math.hpp>
+#include "bankedcurve3d.h"
 
 using namespace godot;
 
 void TrailPathPolygon::_bind_methods() {
+    ClassDB::bind_method(D_METHOD("set_autoupdate", "autoupdate"), &TrailPathPolygon::set_autoupdate);
+	ClassDB::bind_method(D_METHOD("get_autoupdate"), &TrailPathPolygon::get_autoupdate);
+
     ClassDB::bind_method(D_METHOD("set_path_node", "path"), &TrailPathPolygon::set_path_node);
 	ClassDB::bind_method(D_METHOD("get_path_node"), &TrailPathPolygon::get_path_node);
 
     ClassDB::bind_method(D_METHOD("_path_exited"), &TrailPathPolygon::_path_exited);
 	ClassDB::bind_method(D_METHOD("_path_changed"), &TrailPathPolygon::_path_changed);
-    ClassDB::bind_method(D_METHOD("_update_shape"), &TrailPathPolygon::_update_shape);
+    ClassDB::bind_method(D_METHOD("bake_mesh"), &TrailPathPolygon::bake_mesh);
 
-    ClassDB::bind_method(D_METHOD("set_left_banking_curve", "curve"), &TrailPathPolygon::set_left_banking_curve);
-	ClassDB::bind_method(D_METHOD("get_left_banking_curve"), &TrailPathPolygon::get_left_banking_curve);
+  //  ClassDB::bind_method(D_METHOD("set_left_banking_curve", "curve"), &TrailPathPolygon::set_left_banking_curve);
+	//ClassDB::bind_method(D_METHOD("get_left_banking_curve"), &TrailPathPolygon::get_left_banking_curve);
 
-    ClassDB::bind_method(D_METHOD("set_right_banking_curve", "curve"), &TrailPathPolygon::set_right_banking_curve);
-	ClassDB::bind_method(D_METHOD("get_right_banking_curve"), &TrailPathPolygon::get_right_banking_curve);
+   // ClassDB::bind_method(D_METHOD("set_right_banking_curve", "curve"), &TrailPathPolygon::set_right_banking_curve);
+	//ClassDB::bind_method(D_METHOD("get_right_banking_curve"), &TrailPathPolygon::get_right_banking_curve);
 
     ClassDB::bind_method(D_METHOD("set_width_curve", "curve"), &TrailPathPolygon::set_width_curve);
 	ClassDB::bind_method(D_METHOD("get_width_curve"), &TrailPathPolygon::get_width_curve);
@@ -32,13 +36,23 @@ void TrailPathPolygon::_bind_methods() {
     ClassDB::bind_method(D_METHOD("set_divide_size", "divide_size"), &TrailPathPolygon::set_divide_size);
 	ClassDB::bind_method(D_METHOD("get_divide_size"), &TrailPathPolygon::get_divide_size);
 
+    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "autoupdate"), "set_autoupdate", "get_autoupdate");
     ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "path_node", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Path3D"), "set_path_node", "get_path_node");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "left_banking_curve", PROPERTY_HINT_RESOURCE_TYPE, "Curve"), "set_left_banking_curve", "get_left_banking_curve");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "right_banking_curve", PROPERTY_HINT_RESOURCE_TYPE, "Curve"), "set_right_banking_curve", "get_right_banking_curve");
+   // ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "left_banking_curve", PROPERTY_HINT_RESOURCE_TYPE, "Curve"), "set_left_banking_curve", "get_left_banking_curve");
+    //ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "right_banking_curve", PROPERTY_HINT_RESOURCE_TYPE, "Curve"), "set_right_banking_curve", "get_right_banking_curve");
     ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "width_curve", PROPERTY_HINT_RESOURCE_TYPE, "Curve"), "set_width_curve", "get_width_curve");
     ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "divide_size"), "set_divide_size", "get_divide_size");
 }
 
+void TrailPathPolygon::set_autoupdate(bool val) {
+    autoupdate = val;
+}
+
+bool TrailPathPolygon::get_autoupdate() {
+    return autoupdate;
+}
+
+/*
 void TrailPathPolygon::set_left_banking_curve(Ref<Curve> p_curve) {
     if (_left_banking_curve != p_curve) {
 		if (_left_banking_curve.is_valid()) {
@@ -63,7 +77,7 @@ void TrailPathPolygon::set_right_banking_curve(Ref<Curve> p_curve) {
 		}
 		_path_changed();
 	}
-}
+}*/
 
 void TrailPathPolygon::set_width_curve(Ref<Curve> p_curve) {
     if (_width_curve != p_curve) {
@@ -92,13 +106,14 @@ Ref<Curve> TrailPathPolygon::get_width_curve() const {
 	return _width_curve;
 }
 
+/*
 Ref<Curve> TrailPathPolygon::get_left_banking_curve() const {
 	return _left_banking_curve;
 }
 
 Ref<Curve> TrailPathPolygon::get_right_banking_curve() const {
 	return _right_banking_curve;
-}
+}*/
 
 void TrailPathPolygon::set_path_node(const NodePath &p_path) {
     WARN_PRINT("setting path node");
@@ -144,8 +159,9 @@ void TrailPathPolygon::_path_exited() {
 }
 
 void TrailPathPolygon::_path_changed() {
-    // csg_shape.cpp calls deferred here, so we probably need to as well.
-    call_deferred(StringName("_update_shape"));
+    if(autoupdate) {
+        call_deferred(StringName("bake_mesh"));
+    }
 }
 
 void TrailPathPolygon::_ready() {
@@ -155,7 +171,7 @@ void TrailPathPolygon::_ready() {
 void TrailPathPolygon::_process(double delta) {
 }
 
-void TrailPathPolygon::_update_shape() {
+void TrailPathPolygon::bake_mesh() {
     WARN_PRINT("updating shape");
 
     path = Object::cast_to<Path3D>(get_node_or_null(path_node));
@@ -182,7 +198,8 @@ void TrailPathPolygon::_update_shape() {
 	root_mesh.unref();
     root_mesh.instantiate();
 
-    Ref<Curve3D> curve = path->get_curve();
+    // TODO some kind of check in case this is a normal curve ?
+    Ref<BankedCurve3D> curve = path->get_curve();
 
     if (curve.is_null() || curve->get_point_count() < 2) {
         return;
@@ -232,16 +249,14 @@ void TrailPathPolygon::_update_shape() {
         // We never use 0, since 0 gives weird values with curves.
         float percentage = MAX(main_curve_offset / curve->get_baked_length(), 0.01);
 
-        if (_left_banking_curve.is_valid()) {
-            // Curve (note NOT Curve3D) is only between 0 and 1, so get the percentage along the main curve to sample.
-            float curve_amount = _left_banking_curve->sample(percentage);
-            left_banking_offset = Vector3(0, curve_amount, 0);
+        float curve_amount = curve->get_bank_at_offset(main_curve_offset);
+
+        if(curve_amount < 0) {
+            left_banking_offset = Vector3(0, abs(curve_amount), 0);
         }
 
-         if (_right_banking_curve.is_valid()) {
-            // Curve (note NOT Curve3D) is only between 0 and 1, so get the percentage along the main curve to sample.
-            float curve_amount = _right_banking_curve->sample(percentage);
-            right_banking_offset = Vector3(0, curve_amount, 0);
+        if(curve_amount > 0) {
+            right_banking_offset = Vector3(0, abs(curve_amount), 0);
         }
 
         // Default width if no curve is set.

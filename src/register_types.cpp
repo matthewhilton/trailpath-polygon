@@ -4,6 +4,7 @@
 #include <godot_cpp/core/defs.hpp>
 #include <godot_cpp/godot.hpp>
 #include "trailpathpolygon.h"
+#include "bankedcurve3d.h"
 
 using namespace godot;
 
@@ -14,6 +15,7 @@ void initialize_gdextension_types(ModuleInitializationLevel p_level)
 	}
 
 	ClassDB::register_class<TrailPathPolygon>();
+	ClassDB::register_class<BankedCurve3D>();
 }
 
 void uninitialize_gdextension_types(ModuleInitializationLevel p_level) {

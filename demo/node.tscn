@@ -1,22 +1,17 @@
-[gd_scene load_steps=6 format=3 uid="uid://dwvu30advhdxf"]
+[gd_scene load_steps=4 format=3 uid="uid://dwvu30advhdxf"]
 
-[sub_resource type="Curve3D" id="Curve3D_w3ut7"]
-_data = {
-"points": PackedVector3Array(-2.33343, -2.54576, 3.24483, 2.33343, 2.54576, -3.24483, 3.0336, -3.24117, 46.579, 1.9717, -0.618307, 8.73104, -1.9717, 0.618307, -8.73104, 15.642, 0.995249, 17.9259, 2.2298, 0.507815, 3.31919, -2.2298, -0.507815, -3.31919, 6.7839, -0.375017, -2.29735, 9.95309, -1.37609, 2.86208, -9.95309, 1.37609, -2.86208, -14.5902, -3.30044, -19.5564),
-"tilts": PackedFloat32Array(0, 0, 0, 0)
+[sub_resource type="BankedCurve3D" id="BankedCurve3D_ukcay"]
+offset_height_values = {
+0.0: 0.0,
+10.0: 10.0,
+20.0: -10.0,
+33.0: 0.0
 }
-point_count = 4
-
-[sub_resource type="Curve" id="Curve_i4342"]
-max_value = 10.0
-_data = [Vector2(0.0206186, 0.526317), 0.0, 0.0, 0, 0, Vector2(0.57732, 1.47368), 0.0, 0.0, 0, 0, Vector2(0.979381, 10), 0.0, 0.0, 0, 0]
-point_count = 3
-
-[sub_resource type="Curve" id="Curve_62ofr"]
-max_value = 10.0
-bake_resolution = 300
-_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.494845, 6.94737), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
-point_count = 3
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5.68219, -3.57969, 75.1564),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
 
 [sub_resource type="Curve" id="Curve_2nfad"]
 max_value = 50.0
@@ -30,13 +25,10 @@ albedo_color = Color(0.729412, 0.596078, 0.360784, 1)
 [node name="Node" type="Node"]
 
 [node name="Path3D" type="Path3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 31.8685, 11.652, 9.85337)
-curve = SubResource("Curve3D_w3ut7")
+curve = SubResource("BankedCurve3D_ukcay")
 
 [node name="TrailPathPolygon" type="TrailPathPolygon" parent="Path3D"]
 path_node = NodePath("..")
-left_banking_curve = SubResource("Curve_i4342")
-right_banking_curve = SubResource("Curve_62ofr")
 width_curve = SubResource("Curve_2nfad")
 divide_size = 0.685
 material_override = SubResource("StandardMaterial3D_4vp6t")
