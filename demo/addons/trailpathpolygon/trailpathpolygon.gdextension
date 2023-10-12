@@ -5,8 +5,8 @@ compatibility_minimum = "4.1"
 
 [libraries]
 
-macos.debug = "res://addons/trailpathpolygon/bin/trailpathpolygon.macos.template_debug.framework"
-macos.release = "res://addons/trailpathpolygon/bin/trailpathpolygon.macos.template_release.framework"
+macos.debug = "res://addons/trailpathpolygon/bin/libtrailpathpolygon.macos.debug.framework"
+macos.release = "res://addons/trailpathpolygon/bin/libtrailpathpolygon.macos.release.framework"
 windows.debug.x86_32 = "res://addons/trailpathpolygon/bin/trailpathpolygon.windows.template_debug.x86_32.dll"
 windows.release.x86_32 = "res://addons/trailpathpolygon/bin/trailpathpolygon.windows.template_release.x86_32.dll"
 windows.debug.x86_64 = "res://addons/trailpathpolygon/bin/trailpathpolygon.windows.template_debug.x86_64.dll"
