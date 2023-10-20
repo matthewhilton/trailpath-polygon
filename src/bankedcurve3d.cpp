@@ -16,6 +16,8 @@ void BankedCurve3D::_bind_methods() {
     ClassDB::bind_method(D_METHOD("set_autobake"), &BankedCurve3D::set_autobake);
     ClassDB::bind_method(D_METHOD("get_autobake"), &BankedCurve3D::get_autobake);
 
+    ClassDB::bind_method(D_METHOD("get_bank_at_offset"), &BankedCurve3D::get_bank_at_offset);
+
     ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "offset_height_values"), "set_offset_height_values", "get_offset_height_values");
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "autobake"), "set_autobake", "get_autobake");
 }
