@@ -43,7 +43,7 @@ if env["platform"] == "macos":
     )
 else:
     library = env.SharedLibrary(
-        "{}/bin/lib{}.{}.{}.{}{}".format(
+        "{}/bin/{}.{}.{}.{}{}".format(
             addon_path,
             project_name,
             env["platform"],
